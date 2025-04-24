@@ -1,0 +1,9 @@
+Flask
+Flask-RESTful
+Flask-Cors
+Flask-SQLAlchemy
+Flask-Migrate
+PyJWT
+python-dotenv
+mysqlclient
+Werkzeug

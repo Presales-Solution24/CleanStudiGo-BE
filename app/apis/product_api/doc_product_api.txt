@@ -1,0 +1,115 @@
+
+# 📚 Studigo API Documentation - Product Module
+
+## Authorization
+All endpoints require Bearer Token authentication.
+
+---
+
+## 1. List Products
+**URL:** `/api/product/list`  
+**Method:** `GET`  
+
+**Query Parameters:**
+- `category_id` (optional, int) — Filter by category ID
+- `keyword` (optional, string) — Search product name or brand
+- `page` (optional, int, default=1) — Pagination page number
+- `per_page` (optional, int, default=10) — Items per page
+
+**Response:**
+- `total`: total number of records
+- `total_pages`: total pages
+- `current_page`: current page
+- `per_page`: number of records per page
+- `products`: list of products
+
+**Example Request:**
+```
+GET /api/product/list?category_id=1&keyword=epson&page=1&per_page=5
+```
+
+---
+
+## 2. Get Product Details
+**URL:** `/api/product/get/<product_id>`  
+**Method:** `GET`  
+
+**URL Parameter:**
+- `product_id` (string, UUID) — Required, ID of the product
+
+**Response:**
+- `id`
+- `name`
+- `brand`
+- `category_id`
+- `image_url`
+- `created_date`
+- `modified_date`
+
+**Example Request:**
+```
+GET /api/product/get/32f87e2d-faf9-4b59-933e-3088ec191d53
+```
+
+---
+
+## 3. Create or Update Product
+**URL:** `/api/product/save`  
+**Method:** `POST`  
+
+**Body Parameters (JSON):**
+- `id` (optional, UUID) — Required for updating product
+- `name` (required, string)
+- `brand` (required, string)
+- `category_id` (required, int)
+- `image_url` (optional, string)
+
+**Behavior:**
+- If `id` is provided → Update existing product
+- If `id` is not provided → Create new product
+
+**Example Create Request:**
+```json
+{
+  "name": "Epson L3210",
+  "brand": "Epson",
+  "category_id": 1,
+  "image_url": "/url_l3210"
+}
+```
+
+**Example Update Request:**
+```json
+{
+  "id": "32f87e2d-faf9-4b59-933e-3088ec191d53",
+  "name": "Epson L3210 Updated",
+  "brand": "Epson",
+  "category_id": 1,
+  "image_url": "/url_l3210_updated"
+}
+```
+
+---
+
+## 4. Delete Product
+**URL:** `/api/product/delete/<product_id>`  
+**Method:** `DELETE`  
+
+**URL Parameter:**
+- `product_id` (string, UUID) — Required, ID of the product
+
+**Behavior:**
+- Soft delete: set `rowstatus = 0`
+- Product remains in database but is considered deleted
+
+**Example Request:**
+```
+DELETE /api/product/delete/32f87e2d-faf9-4b59-933e-3088ec191d53
+```
+
+---
+
+# 📢 Notes
+- `created_by`, `modified_by`, `created_date`, and `modified_date` are automatically handled.
+- Only products with `rowstatus = 1` are considered active.
+- Pagination is applied automatically in product listing.

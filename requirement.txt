@@ -7,3 +7,4 @@ PyJWT
 python-dotenv
 mysqlclient
 Werkzeug
+pymysql

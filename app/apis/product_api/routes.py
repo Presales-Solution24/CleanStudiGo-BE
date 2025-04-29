@@ -1,8 +1,17 @@
-from flask import request, jsonify
+import os
+import uuid
+from flask import request, jsonify, current_app
+from werkzeug.utils import secure_filename
 from app.apis.product_api import product_bp
 from app.models.product_models.models import Product, Category
 from app.extensions import db
 from app.utils.auth_utils import token_required
+
+UPLOAD_FOLDER = 'uploads/products'
+ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
+
+def allowed_file(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 
 @product_bp.route('/list', methods=['GET'])
@@ -74,21 +83,43 @@ def get_product(current_user, product_id):
 @product_bp.route('/save', methods=['POST'])
 @token_required
 def save_or_update_product(current_user):
-    data = request.get_json()
+    # Karena sekarang multipart, ambil pakai request.form
+    product_id = request.form.get('id')
+    name = request.form.get('name')
+    brand = request.form.get('brand')
+    category_id = request.form.get('category_id', type=int)
+    image_file = request.files.get('image')  # File gambar opsional
 
+    # Basic validation
     required_fields = ['name', 'brand', 'category_id']
-    missing_fields = [field for field in required_fields if not data.get(field)]
+    # missing_fields = [field for field in required_fields if not locals().get(field)]
+
+    # if missing_fields:
+    #     return jsonify({
+    #         'message': f'Missing required fields: {", ".join(missing_fields)}'
+    #     }), 400
+    
+    missing_fields = []
+    for field in required_fields:
+        if not request.form.get(field):
+            missing_fields.append(field)
 
     if missing_fields:
         return jsonify({
             'message': f'Missing required fields: {", ".join(missing_fields)}'
         }), 400
 
-    product_id = data.get('id')  # UUID string
-    name = data['name']
-    brand = data['brand']
-    category_id = data['category_id']
-    image_url = data.get('image_url', '')
+    # Cek dan buat folder upload jika belum ada
+    upload_folder_full = os.path.join(current_app.root_path, UPLOAD_FOLDER)
+    os.makedirs(upload_folder_full, exist_ok=True)
+
+    # Simpan file kalau ada image
+    image_url = None
+    if image_file and allowed_file(image_file.filename):
+        filename = secure_filename(f"{str(uuid.uuid4())}.{image_file.filename.rsplit('.', 1)[1].lower()}")
+        image_path = os.path.join(upload_folder_full, filename)
+        image_file.save(image_path)
+        image_url = f"/{UPLOAD_FOLDER}/{filename}"
 
     if product_id:
         # Update existing product
@@ -100,7 +131,10 @@ def save_or_update_product(current_user):
         product.name = name
         product.brand = brand
         product.category_id = category_id
-        product.image_url = image_url
+
+        if image_url:
+            product.image_url = image_url  # Update image only if new image uploaded
+
         product.modified_by = current_user.username
         db.session.commit()
 
@@ -121,7 +155,6 @@ def save_or_update_product(current_user):
         return jsonify({'message': 'Product created successfully'}), 201
 
 
-# 4. Delete (soft delete)
 @product_bp.route('/delete/<string:product_id>', methods=['DELETE'])
 @token_required
 def delete_product(current_user, product_id):
@@ -130,6 +163,13 @@ def delete_product(current_user, product_id):
     if not product:
         return jsonify({'message': 'Product not found'}), 404
 
+    # Hapus file image jika ada
+    if product.image_url:
+        image_path = os.path.join(current_app.root_path, product.image_url.lstrip('/'))
+        if os.path.exists(image_path):
+            os.remove(image_path)
+
+    # Soft delete produk
     product.rowstatus = 0
     product.modified_by = current_user.username
     db.session.commit()

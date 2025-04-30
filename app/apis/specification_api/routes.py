@@ -167,3 +167,56 @@ def save_or_update_specification_values(current_user):
 
     return jsonify({'message': 'Specification values saved successfully'}), 200
 
+@specification_bp.route('/compare', methods=['GET'])
+@token_required
+def compare_products(current_user):
+    product_a_id = request.args.get('product_a')
+    product_b_id = request.args.get('product_b')
+
+    if not product_a_id or not product_b_id:
+        return jsonify({'message': 'Both product_a and product_b are required'}), 400
+
+    product_a = Product.query.filter_by(id=product_a_id, rowstatus=1).first()
+    product_b = Product.query.filter_by(id=product_b_id, rowstatus=1).first()
+
+    if not product_a or not product_b:
+        return jsonify({'message': 'One or both products not found'}), 404
+
+    if product_a.category_id != product_b.category_id:
+        return jsonify({'message': 'Products must be in the same category to compare'}), 400
+
+    category_id = product_a.category_id
+
+    # Ambil semua spek di kategori tersebut
+    definitions = SpecificationDefinition.query.filter_by(category_id=category_id, rowstatus=1).all()
+
+    result = []
+
+    for spec in definitions:
+        value_a = SpecificationValue.query.filter_by(
+            product_id=product_a_id,
+            specification_id=spec.id,
+            rowstatus=1
+        ).first()
+
+        value_b = SpecificationValue.query.filter_by(
+            product_id=product_b_id,
+            specification_id=spec.id,
+            rowstatus=1
+        ).first()
+
+        result.append({
+            'specification_id': spec.id,
+            'name': spec.name,
+            'unit': spec.unit,
+            'better_preference': spec.better_preference,
+            'value_a': value_a.value if value_a else None,
+            'value_b': value_b.value if value_b else None
+        })
+
+#Kalau better_preference == "higher" ➜ nilai lebih besar = lebih bagus.
+#Kalau better_preference == "lower" ➜ nilai lebih kecil = lebih bagus.
+#Kalau value_b == null ➜ tampilkan "N/A".
+#Bisa tambahkan kolom winner: "A"/"B"/"tie" jika butuh logic di backend (optional).
+
+    return jsonify(result), 200

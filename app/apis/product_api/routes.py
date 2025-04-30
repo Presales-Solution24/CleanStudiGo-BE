@@ -4,6 +4,7 @@ from flask import request, jsonify, current_app
 from werkzeug.utils import secure_filename
 from app.apis.product_api import product_bp
 from app.models.product_models.models import Product, Category
+from app.models.specification_models.models import SpecificationDefinition, SpecificationValue
 from app.extensions import db
 from app.utils.auth_utils import token_required
 
@@ -169,9 +170,17 @@ def delete_product(current_user, product_id):
         if os.path.exists(image_path):
             os.remove(image_path)
 
-    # Soft delete produk
+    # Soft delete all Specification Values
+    spec_values = SpecificationValue.query.filter_by(product_id=product_id, rowstatus=1).all()
+
+    for spec in spec_values:
+        spec.rowstatus = 0
+        spec.modified_by = current_user.username
+
+    # Soft delete product
     product.rowstatus = 0
     product.modified_by = current_user.username
+
     db.session.commit()
 
-    return jsonify({'message': 'Product deleted successfully'}), 200
+    return jsonify({'message': 'Product and related specifications deleted successfully'}), 200

@@ -3,6 +3,7 @@ from app.apis.auth_api import auth_bp
 from app.models.auth_models.models import User
 from app.extensions import db
 from app.utils.token_utils import generate_token, decode_token
+from app.utils.otp_email import send_otp_email, generate_otp
 
 @auth_bp.route('/register', methods=['POST'])
 def register():
@@ -81,3 +82,42 @@ def change_password():
     db.session.commit()
 
     return jsonify({'message': 'Password updated successfully'}), 200
+
+@auth_bp.route('/login-otp', methods=['POST'])
+def login_otp():
+    print("LOGIN ROUTE CALLED")
+    data = request.get_json()
+    email = data.get('email')
+
+    user = User.query.filter_by(email=email).first()
+    if not user:
+        return jsonify({'message': 'Email not registered'}), 404
+
+    otp = generate_otp()
+    user.otp = otp
+    db.session.commit()
+
+    print("Otp berhasi di create",otp)
+    send_otp_email(email, otp)
+
+    return jsonify({'message': 'OTP sent to your email'}), 200
+
+@auth_bp.route('/verify-otp', methods=['POST'])
+def verify_otp():
+    data = request.get_json()
+    email = data.get('email')
+    otp = data.get('otp')
+
+    user = User.query.filter_by(email=email).first()
+
+    if not user or user.otp != otp:
+        return jsonify({'message': 'Invalid email or OTP'}), 401
+
+    # Clear OTP setelah berhasil
+    user.otp = None
+    db.session.commit()
+
+    # Generate token (dummy token dulu)
+    token = generate_token(user.id)
+
+    return jsonify({'message': 'Login successful', 'token': token}), 200

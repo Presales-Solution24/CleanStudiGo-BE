@@ -1,0 +1,78 @@
+STUDIGO API DOCUMENTATION - CONTENT MODULE
+==========================================
+
+AUTHORIZATION
+-------------
+All endpoints require:
+Authorization: Bearer <token>
+
+
+1. Upload Konten (video/image/pdf)
+----------------------------------
+POST /api/content/save
+Headers:
+- Content-Type: multipart/form-data
+- Authorization: Bearer <token>
+
+Body (form-data):
+- title (text)          : required
+- description (text)    : optional
+- content_type (text)   : required, one of: video, image, pdf
+- category_id (text)    : optional
+- product_id (text)     : optional
+- file (file)           : required, file upload (jpg, png, pdf, mp4)
+
+Response:
+{
+  "message": "Content uploaded successfully",
+  "file_url": "/uploads/contents/abc123_saleskit.pdf"
+}
+
+
+2. List Konten
+--------------
+GET /api/content/list
+Query Parameters (optional):
+- category_id (int)
+- product_id (int)
+
+Response:
+[
+  {
+    "id": 1,
+    "title": "Panduan Printer",
+    "description": "Cara reset printer",
+    "content_type": "video",
+    "file_url": "/uploads/contents/xxx.mp4",
+    "views": 5,
+    "category_id": 1,
+    "product_id": null
+  }
+]
+
+
+3. View Detail Konten (+ Hit View)
+----------------------------------
+GET /api/content/view/<id>
+
+Response:
+{
+  "id": 1,
+  "title": "Panduan Printer",
+  "description": "Reset Epson",
+  "content_type": "video",
+  "file_url": "/uploads/contents/video1.mp4",
+  "category_id": 1,
+  "product_id": null,
+  "views": 6
+}
+
+
+4. Delete Konten (Soft Delete)
+------------------------------
+DELETE /api/content/delete/<id>
+
+Response:
+{
+  "message": "Content deleted successfully"
+}

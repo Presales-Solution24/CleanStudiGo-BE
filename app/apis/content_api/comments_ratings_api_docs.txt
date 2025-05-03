@@ -1,0 +1,85 @@
+STUDIGO API DOCUMENTATION - CONTENT COMMENTS & RATINGS MODULE
+==============================================================
+
+AUTHORIZATION
+-------------
+All endpoints require:
+Authorization: Bearer <token>
+
+
+==============================
+💬 COMMENTS
+==============================
+
+1. Tambah Komentar
+------------------
+POST /api/content/comment/add
+Headers:
+- Content-Type: application/json
+- Authorization: Bearer <token>
+
+Body:
+{
+  "content_id": 1,
+  "comment_text": "Video ini sangat bermanfaat!"
+}
+
+Response:
+{
+  "message": "Comment added successfully"
+}
+
+
+2. Ambil List Komentar per Konten
+---------------------------------
+GET /api/content/comment/list/<content_id>
+Example:
+GET /api/content/comment/list/1
+
+Response:
+[
+  {
+    "id": 2,
+    "user_id": 1,
+    "comment_text": "Mantap!",
+    "created_date": "2025-05-03 13:21:44"
+  }
+]
+
+
+==============================
+⭐ RATINGS
+==============================
+
+1. Submit Rating Konten
+------------------------
+POST /api/content/rating/submit
+Headers:
+- Content-Type: application/json
+- Authorization: Bearer <token>
+
+Body:
+{
+  "content_id": 1,
+  "rating": 5
+}
+
+Note: Rating value must be between 1 and 5
+
+Response:
+{
+  "message": "Rating submitted successfully"
+}
+
+
+2. Get Rata-Rata Rating Konten
+------------------------------
+GET /api/content/rating/average/<content_id>
+Example:
+GET /api/content/rating/average/1
+
+Response:
+{
+  "average_rating": 4.7,
+  "total_ratings": 3
+}

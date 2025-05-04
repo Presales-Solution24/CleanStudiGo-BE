@@ -1,0 +1,16 @@
+All Image (list, SaveUpdate Page):
+    Frontend gabisa akses / load image buat di view
+
+Spek Definition :
+    Better Preference tidak muncul di list
+Spek Value :
+    Better Preference tidak muncul di list
+
+Products :
+    Gambar kasih path ke blobnya aja biar bisa ditampilkan di list
+
+SignUp :
+    User langsung ke register padahal belum verif otp (menurut gua ga ada masalah, ada urgent disini ga?)
+    Gua buat flow manfaatin verif-otp yang ga dipisahin antara otp register sama otp login, jadi setelah register dan verif otp langsung masuk ke Home, gaperlu login lagi
+    
+Change Password udah WORK??

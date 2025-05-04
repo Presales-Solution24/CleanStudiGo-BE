@@ -8,3 +8,4 @@ python-dotenv
 mysqlclient
 Werkzeug
 pymysql
+flask_mail

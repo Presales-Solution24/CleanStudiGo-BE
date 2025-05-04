@@ -85,7 +85,6 @@ def change_password():
 
 @auth_bp.route('/login-otp', methods=['POST'])
 def login_otp():
-    print("LOGIN ROUTE CALLED")
     data = request.get_json()
     email = data.get('email')
 
@@ -115,9 +114,33 @@ def verify_otp():
 
     # Clear OTP setelah berhasil
     user.otp = None
+    user.email_verified = True
     db.session.commit()
 
     # Generate token (dummy token dulu)
     token = generate_token(user.id)
 
     return jsonify({'message': 'Login successful', 'token': token}), 200
+
+@auth_bp.route('/register-otp', methods=['POST'])
+def register_otp():
+    data = request.get_json()
+    username = data.get('username')
+    email = data.get('email')
+    password = data.get('password')
+
+    if User.query.filter((User.email == email) | (User.username == username)).first():
+        return jsonify({'message': 'User already exists'}), 409
+    
+    otp = generate_otp()
+    print("Add to database")
+    new_user = User(username=username, email=email, otp=otp)
+    new_user.set_password(password)
+    db.session.add(new_user)
+    db.session.commit()
+    print("Register Berhasil")
+
+    print("Otp berhasi di create",otp)
+    send_otp_email(email, otp)
+    
+    return jsonify({'message': 'User registered successfully'}), 201

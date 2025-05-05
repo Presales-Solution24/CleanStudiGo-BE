@@ -3,6 +3,8 @@ __pycache__/
 *.py[cod]
 *$py.class
 *.pyc
+*.cpython-310.pyc
+*.cpython-310
 # Virtual environments
 venv/
 .Python
@@ -47,3 +49,6 @@ coverage.xml
 *.bak
 *.swp
 *~
+
+# upload
+/uploads/

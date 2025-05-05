@@ -113,3 +113,29 @@ def view_content(current_user, content_id):
     }
 
     return jsonify(result), 200
+
+@content_bp.route('/delete/<int:content_id>', methods=['DELETE'])
+@token_required
+def delete_content(current_user, content_id):
+    from app.models.content_models.models import Content  # safe import kalau belum ada
+
+    content = Content.query.filter_by(id=content_id, rowstatus=1).first()
+
+    if not content:
+        return jsonify({'message': 'Content not found'}), 404
+
+    # Hapus file fisik jika ada (opsional)
+    if content.file_url:
+        import os
+        from flask import current_app
+
+        file_path = os.path.join(current_app.root_path, content.file_url.lstrip('/'))
+        if os.path.exists(file_path):
+            os.remove(file_path)
+
+    # Soft delete
+    content.rowstatus = 0
+    content.modified_by = current_user.username
+    db.session.commit()
+
+    return jsonify({'message': 'Content deleted successfully'}), 200

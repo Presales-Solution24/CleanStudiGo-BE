@@ -83,3 +83,19 @@ Response:
   "average_rating": 4.7,
   "total_ratings": 3
 }
+
+
+==============================
+🗑 DELETE CONTENT
+==============================
+
+DELETE /api/content/delete/<id>
+Authorization: Bearer <token>
+
+Example:
+DELETE /api/content/delete/3
+
+Response:
+{
+  "message": "Content deleted successfully"
+}

@@ -7,6 +7,7 @@ from app.apis.category_api import category_bp
 from app.apis.product_api import product_bp
 from app.apis.specification_api import specification_bp
 from app.apis.content_api import content_bp
+from app.apis.dashboard_api import dashboard_bp
 from flask_cors import CORS
 
 import os
@@ -26,6 +27,8 @@ def create_app():
     app.register_blueprint(product_bp)
     app.register_blueprint(specification_bp)
     app.register_blueprint(content_bp)
+    app.register_blueprint(dashboard_bp)
+
 
     # Serve uploaded files from /uploads/<path:filename>
     @app.route('/uploads/<path:filename>')

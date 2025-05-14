@@ -16,7 +16,7 @@ Authorization: Bearer <token>
 POST /api/content/comment/add
 Headers:
 - Content-Type: application/json
-- Authorization: Bearer <token>
+- Authorization: token
 
 Body:
 {
@@ -56,7 +56,7 @@ Response:
 POST /api/content/rating/submit
 Headers:
 - Content-Type: application/json
-- Authorization: Bearer <token>
+- Authorization: token
 
 Body:
 {

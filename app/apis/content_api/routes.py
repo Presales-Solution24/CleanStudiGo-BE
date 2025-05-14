@@ -14,6 +14,7 @@ from datetime import datetime
 def list_content(current_user):
     category_id = request.args.get('category_id', type=int)
     product_id = request.args.get('product_id', type=int)
+    content_type = request.args.get('content_type', type=str)
 
     query = Content.query.filter_by(rowstatus=1)
 
@@ -21,6 +22,8 @@ def list_content(current_user):
         query = query.filter_by(category_id=category_id)
     if product_id:
         query = query.filter_by(product_id=product_id)
+    if content_type:
+        query = query.filter_by(content_type=content_type)
 
     contents = query.order_by(Content.created_date.desc()).all()
 

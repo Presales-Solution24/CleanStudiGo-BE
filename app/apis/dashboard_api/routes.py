@@ -20,3 +20,16 @@ def profile():
         'username': user.username,
         'email': user.email
     }), 200
+
+
+@dashboard_bp.route('/profile-by-id/<int:user_id>', methods=['GET'])
+def profile_by_id(user_id):
+    user = User.query.get(user_id)
+    if not user:
+        return jsonify({'message': 'User not found'}), 404
+
+    return jsonify({
+        'id': user.id,
+        'username': user.username,
+        'email': user.email
+    }), 200

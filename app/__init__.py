@@ -8,6 +8,7 @@ from app.apis.product_api import product_bp
 from app.apis.specification_api import specification_bp
 from app.apis.content_api import content_bp
 from app.apis.dashboard_api import dashboard_bp
+from app.apis.textcontent_api import textcontent_bp
 from flask_cors import CORS
 
 import os
@@ -28,6 +29,7 @@ def create_app():
     app.register_blueprint(specification_bp)
     app.register_blueprint(content_bp)
     app.register_blueprint(dashboard_bp)
+    app.register_blueprint(textcontent_bp)
 
 
     # Serve uploaded files from /uploads/<path:filename>

@@ -21,7 +21,7 @@ def list_products(current_user):
     category_id = request.args.get('category_id', type=int)
     keyword = request.args.get('keyword', '', type=str)
     page = request.args.get('page', 1, type=int)
-    per_page = request.args.get('per_page', 10, type=int)
+    per_page = request.args.get('per_page', 100, type=int)
 
     query = Product.query.filter(Product.rowstatus == 1)
 

@@ -144,3 +144,26 @@ def register_otp():
     send_otp_email(email, otp)
     
     return jsonify({'message': 'User registered successfully'}), 201
+
+@auth_bp.route('/info', methods=['GET'])
+def get_current_user():
+    token = request.headers.get('Authorization')
+    if not token:
+        return jsonify({'message': 'Token missing'}), 401
+
+    if token.startswith('Bearer '):
+        token = token[7:]
+
+    user_id = decode_token(token)
+    if not user_id:
+        return jsonify({'message': 'Invalid or expired token'}), 401
+
+    user = User.query.get(user_id)
+    if not user:
+        return jsonify({'message': 'User not found'}), 404
+
+    return jsonify({
+        'username': user.username,
+        'email': user.email,
+        'role': user.role
+    }), 200

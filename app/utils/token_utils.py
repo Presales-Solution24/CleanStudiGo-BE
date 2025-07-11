@@ -5,7 +5,7 @@ from flask import current_app
 def generate_token(user_id):
     payload = {
         'user_id': user_id,
-        'exp': datetime.datetime.utcnow() + datetime.timedelta(days=6)
+        'exp': datetime.datetime.utcnow() + datetime.timedelta(days=365)
     }
     return jwt.encode(payload, current_app.config['JWT_SECRET_KEY'], algorithm='HS256')
 
